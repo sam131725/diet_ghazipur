@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { SITE, MENU } from '../config.js';
+import { SITE } from '../config.js';
 import { useAuth } from '../auth.jsx';
 import Icon from './Icon.jsx';
 import Visitors from './Visitors.jsx';
 import MiniMap from './MiniMap.jsx';
 import Updates from './Updates.jsx';
 import { useLang } from '../i18n.jsx';
+import { useSeo } from '../seo.js';
+import { useSettings, useMenu, lbl } from '../settings.js';
 
-const linkOf = (m) => m.to || m.children[0].href || `${m.base}/${m.children[0].slug}`;
+const linkOf = (m) => m.to || (m.children?.[0] ? m.children[0].href || `${m.base}/${m.children[0].slug}` : '/');
+const isExt = (u) => /^https?:\/\//.test(u || '');
 
 export default function Layout() {
   const [open, setOpen] = useState(false);
@@ -18,6 +21,9 @@ export default function Layout() {
   const { lang, setLang, t } = useLang();
   const { user, logout } = useAuth();
   const loc = useLocation();
+  useSeo();
+  const { contact, scertLogo, site } = useSettings();
+  const { menu: MENU } = useMenu();
 
   useEffect(() => { setOpen(false); window.scrollTo(0, 0); }, [loc.pathname]);
   useEffect(() => {
@@ -66,13 +72,19 @@ export default function Layout() {
           <Link to="/" className="brand row">
             <img className="logo" src="/logo-512.png" srcSet="/logo-512.png 1x, /logo.png 2x" width="88" height="88" alt="DIET Ghazipur emblem" />
             <div>
-              <div className="hi">{SITE.nameHi}</div>
-              <h1>{lang === 'hi' ? t(SITE.name) : SITE.name}</h1>
-              <div className="l2">{t(SITE.sub)}</div>
-              <div className="l1">{t(SITE.dept.replace(/[()]/g, ''))}</div>
+              <div className="hi">{site.nameHi}</div>
+              <h1>{lang === 'hi' ? t(site.name) : site.name}</h1>
+              <div className="l2">{t(site.sub)}</div>
+              <div className="l1">{t(site.dept)}</div>
             </div>
           </Link>
           <div className="row right">
+            {scertLogo && (
+              <div className="up scert row">
+                <img className="emblem" src={scertLogo} height="64" alt="SCERT Uttar Pradesh logo" />
+                <div><b className="hi2">एस.सी.ई.आर.टी.</b><span>SCERT Uttar Pradesh</span></div>
+              </div>
+            )}
             <div className="up row">
               <img className="emblem" src="/up-emblem.png" width="64" height="64" alt="Government of Uttar Pradesh emblem" />
               <div><b className="hi2">उत्तर प्रदेश सरकार</b><span>Government of Uttar Pradesh</span></div>
@@ -97,15 +109,17 @@ export default function Layout() {
               const active = m.children ? loc.pathname.startsWith(m.base) : undefined;
               return (
                 <li key={m.key} className={m.children ? 'has-sub' : ''}>
-                  <NavLink to={linkOf(m)} end={m.key === 'home'} className={active ? 'active' : undefined}>
-                    {m.home && <Icon name="home" size={17} />}
-                    {lang === 'hi' ? m.hi : m.label}
-                    {m.children && <Icon name="chevron" size={13} className="down" />}
-                  </NavLink>
+                  {isExt(linkOf(m))
+                    ? <a href={linkOf(m)} target="_blank" rel="noreferrer">{lbl(lang, t, m)}<Icon name="external" size={12} /></a>
+                    : <NavLink to={linkOf(m)} end={m.key === 'home'} className={active ? 'active' : undefined}>
+                      {m.home && <Icon name="home" size={17} />}
+                      {lbl(lang, t, m)}
+                      {m.children && <Icon name="chevron" size={13} className="down" />}
+                    </NavLink>}
                   {m.badge && <span className="navnew">{t(m.badge)}</span>}
                   {m.children && (
                     <ul className="sub">
-                      {m.children.map((k) => <li key={k.slug}><Link to={k.href || `${m.base}/${k.slug}`}>{t(k.label)}</Link></li>)}
+                      {m.children.map((k) => { const to = k.href || `${m.base}/${k.slug}`; return <li key={k.slug}>{isExt(to) ? <a href={to} target="_blank" rel="noreferrer">{lbl(lang, t, k)}</a> : <Link to={to}>{lbl(lang, t, k)}</Link>}</li>; })}
                     </ul>
                   )}
                 </li>
@@ -123,11 +137,11 @@ export default function Layout() {
         <div className="wrap-full grid5">
           <div>
             <h4>{t('CONTACT US')}</h4>
-            <p className="line"><Icon name="pin" size={18} /><span><b>{t('DIET Ghazipur')}</b><br />{t(SITE.address)}</span></p>
-            <p className="line"><Icon name="phone" size={18} />{SITE.phone}</p>
-            <p className="line"><Icon name="mail" size={18} />{SITE.email}</p>
+            <p className="line"><Icon name="pin" size={18} /><span><b>{t('DIET Ghazipur')}</b><br />{t(contact.address)}</span></p>
+            <p className="line"><Icon name="phone" size={18} />{contact.phone}</p>
+            <p className="line"><Icon name="mail" size={18} />{contact.email}</p>
             <p className="line"><Icon name="globe" size={18} />{siteUrl.replace(/^https?:\/\//, '')}</p>
-            <p className="line"><Icon name="clock" size={18} />{t(SITE.hours)}</p>
+            <p className="line"><Icon name="clock" size={18} />{t(contact.hours)}</p>
           </div>
           <div>
             <h4>{t('QUICK LINKS')}</h4>

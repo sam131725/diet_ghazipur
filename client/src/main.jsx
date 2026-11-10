@@ -5,14 +5,17 @@ import 'leaflet/dist/leaflet.css';
 import App from './App.jsx';
 import { AuthProvider } from './auth.jsx';
 import { LangProvider } from './i18n.jsx';
+import { SettingsProvider } from './settings.js';
 import './styles.css';
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <LangProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <SettingsProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </SettingsProvider>
     </LangProvider>
   </BrowserRouter>
 );

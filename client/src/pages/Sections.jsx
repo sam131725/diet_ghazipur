@@ -4,24 +4,26 @@ import SideLayout from '../components/SideLayout.jsx';
 import DocTable from '../components/DocTable.jsx';
 import Icon from '../components/Icon.jsx';
 import { api, useLive, fmtDate } from '../api.js';
-import { MENU, SESSIONS, DOWNLOAD_GROUPS, INTERNSHIP, POLICIES } from '../config.js';
+import { SESSIONS, DOWNLOAD_GROUPS, INTERNSHIP, POLICIES } from '../config.js';
 import { useLang } from '../i18n.jsx';
+import { useMenu, lbl, tx } from '../settings.js';
 
 const docsPath = (section, group) =>
   `/docs?section=${encodeURIComponent(section)}${group ? `&group=${encodeURIComponent(group)}` : ''}`;
 
 /* Generic page for every dropdown child: text from config + documents staff upload for that page */
 export function SectionPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { menu: MENU, ready } = useMenu();
   const { menu, slug } = useParams();
   const m = MENU.find((x) => x.key === menu && x.children);
   const page = m?.children.find((c) => c.slug === slug);
   const { data: docs } = useLive(docsPath(`${menu}/${slug}`), 'docs');
-  if (!page) return <Navigate to="/" replace />;
+  if (!page) return ready ? <Navigate to="/" replace /> : null;
   return (
-    <SideLayout side={m.label.toUpperCase()} items={m.children.map((c) => ({ to: c.href || `${m.base}/${c.slug}`, label: c.label, icon: 'file' }))}
-      crumbs={[{ label: m.label, to: `${m.base}/${m.children[0].slug}` }, { label: page.label }]} title={page.label} sub={page.sub}>
-      <div className="card pad"><p className="big">{t(page.text)}</p></div>
+    <SideLayout side={lbl(lang, t, m).toUpperCase()} items={m.children.map((c) => ({ to: c.href || `${m.base}/${c.slug}`, label: lbl(lang, t, c), icon: 'file' }))}
+      crumbs={[{ label: lbl(lang, t, m), to: `${m.base}/${m.children[0].slug}` }, { label: lbl(lang, t, page) }]} title={lbl(lang, t, page)} sub={tx(lang, t, page, 'sub')}>
+      <div className="card pad"><p className="big" style={{ whiteSpace: 'pre-line' }}>{tx(lang, t, page, 'text')}</p></div>
       <h3 className="subh">{t('Documents')}</h3>
       <DocTable docs={docs} />
     </SideLayout>
@@ -84,8 +86,9 @@ export function PolicyPage() {
 }
 
 export function SitemapPage() {
-  const { t } = useLang();
-  const single = MENU.filter((m) => !m.children);
+  const { t, lang } = useLang();
+  const { menu: MENU } = useMenu();
+  const single = MENU.filter((m) => !m.children && m.to);
   const groups = MENU.filter((m) => m.children);
   return (
     <div className="wrap page">
@@ -95,7 +98,7 @@ export function SitemapPage() {
         <div className="card pad">
           <h4>{t('Main pages')}</h4>
           <ul>
-            {single.map((m) => <li key={m.key}><Link to={m.to}>{t(m.label)}</Link></li>)}
+            {single.map((m) => <li key={m.key}><Link to={m.to}>{lbl(lang, t, m)}</Link></li>)}
             <li><Link to="/notices">{t('Notices')}</Link></li>
             <li><Link to="/events">{t('Events')}</Link></li>
             <li><Link to="/search">{t('Search')}</Link></li>
@@ -103,8 +106,8 @@ export function SitemapPage() {
         </div>
         {groups.map((m) => (
           <div className="card pad" key={m.key}>
-            <h4>{t(m.label)}</h4>
-            <ul>{m.children.map((c) => <li key={c.slug}><Link to={c.href || `${m.base}/${c.slug}`}>{t(c.label)}</Link></li>)}</ul>
+            <h4>{lbl(lang, t, m)}</h4>
+            <ul>{m.children.map((c) => <li key={c.slug}><Link to={c.href || `${m.base}/${c.slug}`}>{lbl(lang, t, c)}</Link></li>)}</ul>
           </div>
         ))}
         <div className="card pad"><h4>{t('Portals')}</h4>

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /student
+Disallow: /staff
+Disallow: /api/
+
+Sitemap: https://dietghazipur.ac.in/sitemap.xml

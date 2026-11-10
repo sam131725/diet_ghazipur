@@ -96,7 +96,6 @@ export const MENU = [
   { key: 'academics', label: 'Academics', hi: 'शैक्षणिक', base: '/section/academics', children: [
     kid('branches', 'Academic branches', 'Branches and their activities.', LOREM),
     kid('library', 'Library and resources', 'Library, ICT lab and learning resources.', LOREM),
-    kid('research', 'Research and innovation', 'Action research and innovation projects.', LOREM),
   ] },
   { key: 'deled', label: 'D.El.Ed.', hi: 'डी.एल.एड.', base: '/section/deled', children: [
     kid('overview', 'Programme overview', 'The two-year Diploma in Elementary Education.', LOREM),
@@ -108,6 +107,11 @@ export const MENU = [
     kid('pre-service', 'Pre-service training', 'Training before entering service.', LOREM),
     kid('in-service', 'In-service training', 'Training for serving teachers and principals.', LOREM),
     kid('calendar', 'Training calendar', 'Schedule of upcoming programmes.', LOREM),
+  ] },
+  { key: 'research', label: 'Research', hi: 'शोध एवं नवाचार', base: '/section/research', children: [
+    kid('action-research', 'Action research', 'Action research carried out by faculty and trainees.', LOREM),
+    kid('innovation', 'Innovation projects', 'Innovative practices and projects.', LOREM),
+    kid('publications', 'Publications and reports', 'Research papers, reports and publications.', LOREM),
   ] },
   { key: 'examination', label: 'Examination', hi: 'परीक्षा', base: '/section/examination', children: [
     kid('schedule', 'Examination schedule', 'Dates and time tables.', LOREM),

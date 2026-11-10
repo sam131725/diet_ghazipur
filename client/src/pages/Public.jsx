@@ -5,6 +5,7 @@ import Icon from '../components/Icon.jsx';
 import { api, useLive, fmtDate } from '../api.js';
 import { SITE } from '../config.js';
 import { useLang, pick } from '../i18n.jsx';
+import { useSettings } from '../settings.js';
 
 export function NoticesPage() {
   const { t } = useLang();
@@ -68,7 +69,8 @@ export const AboutPage = () => (
 );
 
 export function ContactPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { contact } = useSettings();
   const [f, setF] = useState({ name: '', email: '', phone: '', message: '' });
   const [msg, setMsg] = useState('');
   const submit = async (e) => {
@@ -76,19 +78,27 @@ export function ContactPage() {
     try { await api('/contact', { method: 'POST', body: f }); setMsg(t('Thank you — your message has been sent.')); setF({ name: '', email: '', phone: '', message: '' }); }
     catch (err) { setMsg(err.message); }
   };
-  const q = encodeURIComponent(SITE.mapQuery || SITE.address);
+  const q = encodeURIComponent(SITE.mapQuery || contact.address);
   const openUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
   const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${q}`;
   return (
     <div className="wrap page">
       <h2>{t('Contact Us')}</h2>
+      {(lang === 'hi' ? contact.messageHi || contact.message : contact.message) && (
+        <div className="card pad cnote"><p>{lang === 'hi' ? contact.messageHi || contact.message : contact.message}</p></div>
+      )}
+      {contact.links.length > 0 && (
+        <div className="clinks row gap wrapflex"><b>{t('Useful links')}:</b>
+          {contact.links.map((l, i) => <a key={i} className="btn ghost sm" href={l.url} target="_blank" rel="noreferrer"><Icon name="external" size={14} /> {lang === 'hi' && l.labelHi ? l.labelHi : l.label}</a>)}
+        </div>
+      )}
       <div className="cinfo">
         <div className="card pad"><span className="ci"><Icon name="building" size={22} /></span><h4>{t('DIET Ghazipur')}</h4><p><b>{t(SITE.sub)}</b></p><p className="muted small">{t(SITE.dept.replace(/[()]/g, ''))}</p></div>
-        <div className="card pad"><span className="ci"><Icon name="pin" size={22} /></span><h4>{t('Address')}</h4><p><b>{t(SITE.address)}</b></p></div>
+        <div className="card pad"><span className="ci"><Icon name="pin" size={22} /></span><h4>{t('Address')}</h4><p><b>{t(contact.address)}</b></p></div>
         <div className="card pad"><span className="ci"><Icon name="phone" size={22} /></span><h4>{t('Contact info')}</h4>
-          <p className="row gap"><Icon name="phone" size={16} /><b>{SITE.phone}</b></p>
-          <p className="row gap"><Icon name="mail" size={16} /><b>{SITE.email}</b></p>
-          <p className="row gap"><Icon name="clock" size={16} /><b>{t(SITE.hours)}</b></p></div>
+          <p className="row gap"><Icon name="phone" size={16} /><b>{contact.phone}</b></p>
+          <p className="row gap"><Icon name="mail" size={16} /><b>{contact.email}</b></p>
+          <p className="row gap"><Icon name="clock" size={16} /><b>{t(contact.hours)}</b></p></div>
         <div className="card pad"><span className="ci"><Icon name="globe" size={22} /></span><h4>{t('Website')}</h4><p><b>{typeof window !== 'undefined' ? window.location.host : ''}</b></p><p className="muted small">{t('Official website of DIET Ghazipur.')}</p></div>
       </div>
 
@@ -96,7 +106,7 @@ export function ContactPage() {
         <iframe title="DIET Ghazipur on Google Maps" loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen
           src={`https://www.google.com/maps?q=${q}&z=15&output=embed`} />
         <div className="gmapbar">
-          <span className="row gap"><Icon name="pin" size={18} />{t(SITE.address)}</span>
+          <span className="row gap"><Icon name="pin" size={18} />{t(contact.address)}</span>
           <span className="row gap">
             <a className="btn" href={openUrl} target="_blank" rel="noreferrer"><Icon name="external" size={16} /> {t('Open in Maps')}</a>
             <a className="btn ghost" href={dirUrl} target="_blank" rel="noreferrer"><Icon name="map" size={16} /> {t('Get directions')}</a>

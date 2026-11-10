@@ -175,6 +175,28 @@ r.patch('/registrations/:id', staffOrAdmin, wrap(async (req, res) => {
   res.json(doc);
 }));
 
+// ---------- Editable site settings (structure, contact page, branding) ----------
+const SETTING_KEYS = ['structure', 'contact', 'branding', 'site', 'menu'];
+r.get('/settings', wrap(async (_req, res) => {
+  const rows = await M.Setting.find({ key: { $in: SETTING_KEYS } });
+  res.set('Cache-Control', 'no-cache');
+  res.json(Object.fromEntries(rows.map((x) => [x.key, x.value])));
+}));
+r.put('/settings/:key', staffOrAdmin, upload.single('file'), persistFiles, wrap(async (req, res) => {
+  const { key } = req.params;
+  if (!SETTING_KEYS.includes(key)) return res.status(404).json({ message: 'Unknown setting' });
+  const raw = req.body.value;
+  let value = typeof raw === 'string' ? JSON.parse(raw || '{}') : raw || {};
+  if (key === 'branding') {
+    const old = await M.Setting.findOne({ key });
+    value = { ...(old?.value || {}), ...value };
+    if (req.file) value.scertLogo = fileUrl(req.file);
+  }
+  const doc = await M.Setting.findOneAndUpdate({ key }, { value }, { upsert: true, new: true });
+  broadcast('settings');
+  res.json(doc.value);
+}));
+
 // ---------- Contact form ----------
 r.post('/contact', rateLimit({ windowMs: 60 * 1000, max: 5 }), wrap(async (req, res) => {
   const { name, email, phone, message } = req.body;

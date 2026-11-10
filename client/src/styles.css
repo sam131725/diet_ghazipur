@@ -505,3 +505,21 @@ body{font-size:15.5px}
 .mini{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;display:block;margin:auto}
 .clampq{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
 @media(max-width:760px){.portrait.photo{width:120px;height:140px}}
+
+/* SCERT logo, contact message/links, settings forms */
+.up.scert{padding-right:18px;margin-right:6px;border-right:1px solid var(--line,#e6dccf)}
+.up.scert .emblem{width:auto;max-width:120px;height:56px;object-fit:contain}
+.cnote{margin:0 0 18px;border-left:4px solid var(--navy)}
+.cnote p{margin:0;font-size:1.02rem}
+.clinks{margin:0 0 18px;align-items:center}
+.stack{display:grid;gap:18px;min-width:0}
+.a-body .form h4{margin:14px 0 2px}
+.a-body .item input,.a-body .item textarea,.a-body .item select{max-width:100%}
+@media (max-width:1100px){.up.scert{display:none}}
+
+/* nav: all items must fit on one row on laptops */
+@media (min-width:1001px){
+  .mainnav{padding:0 6px}
+  .mainnav>ul>li>a{padding:11px 5px;gap:4px;font-size:clamp(.7rem,.7vw,.8rem);letter-spacing:0}
+  .mainnav>ul>li>a svg{flex:none}
+}
