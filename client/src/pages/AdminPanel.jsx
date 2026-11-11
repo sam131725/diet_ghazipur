@@ -47,16 +47,26 @@ function Manager({ id }) {
   const [file, setFile] = useState(null);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
+  const [editId, setEditId] = useState(null);
+
+  const startEdit = (x) => {
+    const v = {};
+    S.fields.forEach(([k, , t]) => { const val = x[k]; v[k] = t === 'check' ? val !== false : t === 'date' ? (val ? String(val).slice(0, 10) : '') : val ?? (t === 'number' ? 1 : ''); });
+    setF({ ...init(), ...v }); setEditId(x._id); setFile(null); setMsg('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const cancelEdit = () => { setEditId(null); setF(init()); setFile(null); setMsg(''); };
 
   const submit = async (e) => {
     e.preventDefault(); setBusy(true); setMsg('');
+    const formEl = e.target;
     try {
       const form = new FormData();
       Object.entries(f).forEach(([k, v]) => form.append(k, v));
       if (file) form.append('file', file);
-      await api(S.path, { method: 'POST', form });
-      setMsg('Published ✔ — visible on the website now.');
-      setF(init()); setFile(null); e.target.reset(); reload();
+      await api(editId ? `${S.path}/${editId}` : S.path, { method: editId ? 'PUT' : 'POST', form });
+      setMsg(editId ? 'Changes saved ✔ — updated on the website now.' : 'Published ✔ — visible on the website now.');
+      setF(init()); setFile(null); setEditId(null); formEl.reset(); reload();
     } catch (ex) { setMsg(ex.message); } finally { setBusy(false); }
   };
   const del = async (x) => {
@@ -67,7 +77,7 @@ function Manager({ id }) {
   return (
     <div className="two">
       <div className="card pad">
-        <h3>Add to {S.label}</h3>
+        <h3>{editId ? `Edit ${S.label}` : `Add to ${S.label}`}</h3>
         <form className="form" onSubmit={submit}>
           {S.fields.map(([k, label, t, req]) => (
             <label key={k}>{t === 'check' ? '' : label}
@@ -77,8 +87,11 @@ function Manager({ id }) {
                 : <input type={t} required={req} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} />}
             </label>
           ))}
-          {S.fileLabel && <label>{S.fileLabel}<input type="file" required={S.fileRequired} accept={S.accept} onChange={(e) => setFile(e.target.files[0])} /></label>}
-          <button className="btn" disabled={busy}>{busy ? 'Uploading…' : 'Publish'}</button>
+          {S.fileLabel && <label>{S.fileLabel}{editId ? ' — leave empty to keep the current file' : ''}<input type="file" required={S.fileRequired && !editId} accept={S.accept} onChange={(e) => setFile(e.target.files[0])} /></label>}
+          <div className="row gap">
+            <button className="btn" disabled={busy}>{busy ? 'Saving…' : editId ? 'Save changes' : 'Publish'}</button>
+            {editId && <button type="button" className="btn ghost" onClick={cancelEdit}>Cancel edit</button>}
+          </div>
           {msg && <p className="note">{msg}</p>}
         </form>
       </div>
@@ -92,7 +105,10 @@ function Manager({ id }) {
                 <div>{S.cols(x).map((c, i) => <div key={i} className={i === S.cols(x).length - 1 ? '' : 'muted small'}>{c}</div>)}
                   {S.fileKey && !S.image && x[S.fileKey] && <a className="small" href={x[S.fileKey]} target="_blank" rel="noreferrer">file</a>}</div>
               </div>
-              <button className="btn danger sm" onClick={() => del(x)}>Delete</button>
+              <span className="row gap">
+                <button className="btn ghost sm" onClick={() => startEdit(x)}>Edit</button>
+                <button className="btn danger sm" onClick={() => del(x)}>Delete</button>
+              </span>
             </div>
           ))}
         </div>
