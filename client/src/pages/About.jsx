@@ -10,6 +10,7 @@ function Body({ slug }) {
   const { data: heads } = usePeople('principal');
   const { data: former } = usePeople('former-principal');
   const { data: faculty } = usePeople('faculty');
+  const { data: staff } = usePeople('staff');
   const head = heads[0];
   switch (slug) {
     case 'overview':
@@ -80,17 +81,25 @@ function Body({ slug }) {
         </div>
       );
 
-    case 'faculty':
-      return (
-        <div className="faculty">
-          {(faculty.length ? faculty : C.faculty).map((f) => (
-            <div className="card pad fac" key={f._id || f.name}>
-              {f._id ? <Photo p={f} className="avatar" size={30} /> : <div className="avatar"><Icon name="user" size={30} /></div>}
-              <div><b>{f._id ? pick(lang, f, 'name') : t(f.name)}</b><div className="muted small">{f._id ? pick(lang, f, 'designation') : t(f.designation)}</div><div className="small">{f._id ? pick(lang, f, 'branch') : t(f.branch)}</div>{f._id && <Meta p={f} />}</div>
-            </div>
-          ))}
+    case 'faculty': {
+      const card = (f) => (
+        <div className="card pad fac" key={f._id || f.name}>
+          {f._id ? <Photo p={f} className="avatar" size={30} /> : <div className="avatar"><Icon name="user" size={30} /></div>}
+          <div><b>{f._id ? pick(lang, f, 'name') : t(f.name)}</b><div className="muted small">{f._id ? pick(lang, f, 'designation') : t(f.designation)}</div><div className="small">{f._id ? pick(lang, f, 'branch') : t(f.branch)}</div>{f._id && <Meta p={f} />}</div>
         </div>
       );
+      return (
+        <>
+          <div className="faculty">{(faculty.length ? faculty : C.faculty).map(card)}</div>
+          {staff.length > 0 && (
+            <>
+              <h3 className="subh">{t('Administrative and other staff')}</h3>
+              <div className="faculty">{staff.map(card)}</div>
+            </>
+          )}
+        </>
+      );
+    }
     default: return null;
   }
 }

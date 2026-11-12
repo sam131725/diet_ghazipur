@@ -40,7 +40,7 @@ export const HI = {
   'Research and innovation': 'शोध एवं नवाचार', 'Research & Innovation': 'शोध एवं नवाचार', 'Action research': 'क्रियात्मक शोध',
   'Action research carried out by faculty and trainees.': 'संकाय एवं प्रशिक्षुओं द्वारा किया गया क्रियात्मक शोध।', 'Innovation projects': 'नवाचार परियोजनाएँ',
   'Innovative practices and projects.': 'नवाचारी पद्धतियाँ एवं परियोजनाएँ।', 'Publications and reports': 'प्रकाशन एवं प्रतिवेदन', 'Research papers, reports and publications.': 'शोध पत्र, प्रतिवेदन एवं प्रकाशन।',
-  'levels': 'स्तर', 'Level': 'स्तर', 'Useful links': 'उपयोगी लिंक',
+  'levels': 'स्तर', 'Level': 'स्तर', 'Useful links': 'उपयोगी लिंक', 'Administrative and other staff': 'प्रशासनिक एवं अन्य कर्मचारी',
   'Programme overview': 'कार्यक्रम का परिचय',
   'Admission and eligibility': 'प्रवेश एवं पात्रता',
   'Syllabus': 'पाठ्यक्रम',
